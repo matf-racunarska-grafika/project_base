@@ -19,8 +19,6 @@ public:
     {
         std::string vertexPathString(vertexPath);
         std::string fragmentPathString(fragmentPath);
-        appendShaderFolderIfNotPresent(vertexPathString);
-        appendShaderFolderIfNotPresent(fragmentPathString);
         vertexPath = vertexPathString.c_str();
         fragmentPath= fragmentPathString.c_str();
 

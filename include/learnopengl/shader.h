@@ -19,8 +19,7 @@ public:
     {
         std::string vertexPathString(vertexPath);
         std::string fragmentPathString(fragmentPath);
-        appendShaderFolderIfNotPresent(vertexPathString);
-        appendShaderFolderIfNotPresent(fragmentPathString);
+
         vertexPath = vertexPathString.c_str();
         fragmentPath= fragmentPathString.c_str();
         // 1. retrieve the vertex/fragment source code from filePath
@@ -53,7 +52,6 @@ public:
             if(geometryPath != nullptr)
             {
                 std::string geometryPathString(geometryPath);
-                appendShaderFolderIfNotPresent(geometryPathString);
                 geometryPath = geometryPathString.c_str();
                 gShaderFile.open(geometryPath);
                 std::stringstream gShaderStream;
