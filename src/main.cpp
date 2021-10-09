@@ -11,11 +11,12 @@
 
 #include <learnopengl/filesystem.h>
 #include <learnopengl/shader.h>
-#include <learnopengl/camera.h>
+#include <rg/Camera.h>
 #include <learnopengl/model.h>
 
 #include <iostream>
 
+#include <rg/service_locator.h>
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
@@ -60,7 +61,7 @@ struct ProgramState {
     float backpackScale = 1.0f;
     PointLight pointLight;
     ProgramState()
-            : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
+            : camera(glm::vec3(0.0f, 0.0f, 4.0f)) {}
 
     void SaveToFile(std::string filename);
 
@@ -140,7 +141,7 @@ int main() {
     stbi_set_flip_vertically_on_load(true);
 
     programState = new ProgramState;
-    programState->LoadFromFile("resources/program_state.txt");
+    //programState->LoadFromFile("resources/program_state.txt");
     if (programState->ImGuiEnabled) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
@@ -179,12 +180,15 @@ int main() {
     pointLight.quadratic = 0.032f;
 
 
-
+    auto &initServiceLocator = rg::ServiceLocator::Get();
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     // render loop
     // -----------
+    rg::ServiceLocator::Get().getEventController().subscribeToEvent(rg::EventType::MouseMoved, &programState->camera);
+    rg::ServiceLocator::Get().getEventController().subscribeToEvent(rg::EventType::Keyboard, &programState->camera);
+
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         // --------------------
@@ -194,8 +198,12 @@ int main() {
 
         // input
         // -----
-        processInput(window);
+        // processInput(window);
 
+        rg::ServiceLocator::Get().getProcessController().update(deltaTime);
+
+
+        programState->camera.update(deltaTime);
 
         // render
         // ------
@@ -238,6 +246,8 @@ int main() {
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+        rg::ServiceLocator::Get().getInputController().update(deltaTime);
+
     }
 
     programState->SaveToFile("resources/program_state.txt");
@@ -254,6 +264,7 @@ int main() {
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window) {
+#if 0
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
@@ -265,6 +276,9 @@ void processInput(GLFWwindow *window) {
         programState->camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(RIGHT, deltaTime);
+#else
+
+#endif
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -278,6 +292,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+#if 0
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
@@ -292,12 +307,19 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 
     if (programState->CameraMouseMovementUpdateEnabled)
         programState->camera.ProcessMouseMovement(xoffset, yoffset);
+#else
+    rg::ServiceLocator::Get().getInputController().processMouseMovementCallback(xpos, ypos);
+#endif
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+#if 0
     programState->camera.ProcessMouseScroll(yoffset);
+#else
+    rg::ServiceLocator::Get().getInputController().processMouseScrollCallback(yoffset);
+#endif
 }
 
 void DrawImGui(ProgramState *programState) {
@@ -336,6 +358,7 @@ void DrawImGui(ProgramState *programState) {
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+#if 0
     if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
         programState->ImGuiEnabled = !programState->ImGuiEnabled;
         if (programState->ImGuiEnabled) {
@@ -345,4 +368,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
+#else
+    rg::ServiceLocator::Get().getInputController().processKeyCallback(window, key, action);
+#endif
 }

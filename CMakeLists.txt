@@ -11,12 +11,12 @@ function(watch)
 endfunction()
 
 set(CMAKE_POLICY_DEFAULT_CMP0012 NEW)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
-list(APPEND CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -O3")
+list(APPEND CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-variable -Wno-unused-parameter")
 
 file(GLOB SOURCES "src/*.cpp" "src/*.c" src/main.cpp)
-file(GLOB HEADERS "include/*.h" "include/*.hpp")
+file(GLOB HEADERS "include/*.h" "include/*.hpp" "include/rg/*.h" "include/rg/*.hpp")
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
@@ -42,7 +42,7 @@ include_directories(${CMAKE_BINARY_DIR}/configuration)
 
 include_directories(include/)
 add_executable(${PROJECT_NAME}
-        ${SOURCES})
+        ${SOURCES} ${HEADERS})
 
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 
