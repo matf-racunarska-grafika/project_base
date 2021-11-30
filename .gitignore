@@ -7,7 +7,7 @@ project_base
 
 ### bin ###
 bin/
-
+resources/program_state.txt
 ### C ###
 # Prerequisites
 *.d
