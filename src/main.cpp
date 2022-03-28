@@ -141,7 +141,7 @@ int main() {
     }
 
     // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
 
     programState = new ProgramState;
     programState->LoadFromFile("resources/program_state.txt");
@@ -280,12 +280,12 @@ int main() {
     //unsigned int floorSpecularMap = specularMap;
 
     vector<std::string> skyboxSides = {
-            FileSystem::getPath("resources/textures/mordor_skybox/hot_bk.png"),
-            FileSystem::getPath("resources/textures/mordor_skybox/hot_dn.png"),
-            FileSystem::getPath("resources/textures/mordor_skybox/hot_ft.png"),
-            FileSystem::getPath("resources/textures/mordor_skybox/hot_up.png"),
-            FileSystem::getPath("resources/textures/mordor_skybox/hot_lf.png"),
-            FileSystem::getPath("resources/textures/mordor_skybox/hot_rt.png")
+            FileSystem::getPath("resources/textures/space1/px.png"),
+            FileSystem::getPath("resources/textures/space1/nx.png"),
+            FileSystem::getPath("resources/textures/space1/py.png"),
+            FileSystem::getPath("resources/textures/space1/ny.png"),
+            FileSystem::getPath("resources/textures/space1/pz.png"),
+            FileSystem::getPath("resources/textures/space1/nz.png")
     };
 
     unsigned int cubemapTexture = loadCubemap(skyboxSides);
@@ -497,7 +497,7 @@ unsigned int loadCubemap(vector<std::string> faces)
         unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
         if (data)
         {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         }
         else
