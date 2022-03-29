@@ -60,8 +60,8 @@ struct ProgramState {
     bool ImGuiEnabled = false;
     Camera camera;
     bool CameraMouseMovementUpdateEnabled = true;
-    glm::vec3 backpackPosition = glm::vec3(0.0f);
-    float backpackScale = 1.0f;
+    glm::vec3 princePosition = glm::vec3(0.0f);
+    float princeScale = 1.0f;
     PointLight pointLight;
     ProgramState()
             : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
@@ -212,39 +212,6 @@ int main() {
             1.0f, -1.0f,1.0f
     };
 
-    // floor plain coordinates
-    //float floorVertices[] = {
-    //        // positions          // normals          // texture coords
-    //        0.5f,  0.5f,  0.0f,  0.0f, 0.0f, -1.0f,  1.0f,  1.0f,  // top right
-    //        0.5f, -0.5f,  0.0f,  0.0f, 0.0f, -1.0f,  1.0f,  0.0f,  // bottom right
-    //        -0.5f, -0.5f,  0.0f,  0.0f, 0.0f, -1.0f,  0.0f,  0.0f,  // bottom left
-    //        -0.5f,  0.5f,  0.0f,  0.0f, 0.0f, -1.0f,  0.0f,  1.0f   // top left
-    //};
-
-    // floor vertices for use in EBO
-    //unsigned int floorIndices[] = {
-    //        0, 1, 3,  // first Triangle
-    //        1, 2, 3   // second Triangle
-    //};
-
-    // Floor setup
-    //unsigned int floorVAO, floorVBO, floorEBO;
-    //glGenVertexArrays(1, &floorVAO);
-    //glGenBuffers(1, &floorVBO);
-    //glGenBuffers(1, &floorEBO);
-
-    //glBindVertexArray(floorVAO);
-    //glBindBuffer(GL_ARRAY_BUFFER, floorVBO);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(floorVertices), floorVertices, GL_STATIC_DRAW);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, floorEBO);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(floorIndices), floorIndices, GL_STATIC_DRAW);
-
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
-    //glEnableVertexAttribArray(0);
-    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
-    //glEnableVertexAttribArray(1);
-    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
-    //glEnableVertexAttribArray(2);
 
     unsigned int skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
@@ -272,12 +239,6 @@ int main() {
     // -----------
     Model ourModel("resources/objects/princ/9848.obj");
     ourModel.SetShaderTextureNamePrefix("material.");
-
-    //unsigned int specularMap = loadTexture(FileSystem::getPath("resources/textures/lava.jpg").c_str());
-
-
-    //unsigned int floorDiffuseMap = loadTexture(FileSystem::getPath("resources/textures/middle_earth.jpg").c_str());
-    //unsigned int floorSpecularMap = specularMap;
 
     vector<std::string> skyboxSides = {
             FileSystem::getPath("resources/textures/space1/px.png"),
@@ -336,9 +297,10 @@ int main() {
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model,
-                               programState->backpackPosition); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
+                               programState->princePosition); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(programState->princeScale));    // it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
+        glRotatef();
         ourModel.Draw(ourShader);
 
         //if (programState->ImGuiEnabled)
@@ -450,8 +412,8 @@ void DrawImGui(ProgramState *programState) {
         ImGui::Text("Hello text");
         ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
         ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
-        ImGui::DragFloat3("Backpack position", (float*)&programState->backpackPosition);
-        ImGui::DragFloat("Backpack scale", &programState->backpackScale, 0.05, 0.1, 4.0);
+        ImGui::DragFloat3("Backpack position", (float*)&programState->princePosition);
+        ImGui::DragFloat("Backpack scale", &programState->princeScale, 0.05, 0.1, 4.0);
 
         ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
         ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
