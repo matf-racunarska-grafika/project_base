@@ -300,7 +300,7 @@ int main() {
                                programState->princePosition); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(programState->princeScale));    // it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        glRotatef();
+
         ourModel.Draw(ourShader);
 
         //if (programState->ImGuiEnabled)
