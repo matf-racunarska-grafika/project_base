@@ -31,8 +31,8 @@ unsigned int loadCubemap(vector<std::string> faces);
 unsigned int loadTexture(char const * path);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 900;
 
 // camera
 
@@ -57,7 +57,7 @@ struct PointLight {
 
 struct ProgramState {
     glm::vec3 clearColor = glm::vec3(0);
-    bool ImGuiEnabled = false;
+    bool ImGuiEnabled = true;
     Camera camera;
     bool CameraMouseMovementUpdateEnabled = true;
     bool spotlight = false;
@@ -232,6 +232,10 @@ int main() {
     princ.SetShaderTextureNamePrefix("material.");
     Model rose("resources/objects/ruza/rose.obj");
     rose.SetShaderTextureNamePrefix("material");
+    Model castle("resources/objects/Castle/Castle OBJ.obj");
+    castle.SetShaderTextureNamePrefix("material");
+    //Model nebula("resources/objects/nebula/Untitled/model.dae");
+    //nebula.SetShaderTextureNamePrefix("material");
 
     vector<std::string> skyboxSides = {
             FileSystem::getPath("resources/textures/space1/px.png"),
@@ -321,7 +325,7 @@ int main() {
 
         objShader.setVec3("pointLights[0].position", pos0);
         objShader.setVec3("pointLights[0].ambient", 0.10f, 0.05f, 0.05f);
-        objShader.setVec3("pointLights[0].diffuse", 0.8f, 0.6f, 0.6f);
+        objShader.setVec3("pointLights[0].diffuse", 0.8, 0.6f, 0.6f);
         objShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 0.0f);
         objShader.setFloat("pointLights[0].constant", 1.0f);
         objShader.setFloat("pointLights[0].linear", 0.09);
@@ -385,6 +389,21 @@ int main() {
         objShader.setMat4("model", model);
         princ.Draw(objShader);
 
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.35f, 0.9f));
+        model = glm::scale(model, glm::vec3(0.1f));
+        objShader.setMat4("model", model);
+        rose.Draw(objShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-0.42f, 1.11f, 0.08f));
+        model = glm::scale(model, glm::vec3(0.24f));
+        model = glm::rotate(model, glm::radians(315.0f), glm::vec3(0,1,0));
+        model = glm::rotate(model, glm::radians(350.0f), glm::vec3(1,0,0));
+        objShader.setMat4("model", model);
+        rose.Draw(objShader);
+
+
         //object rendering end, start of light source rendering
 
         sourceShader.use();
@@ -393,10 +412,10 @@ int main() {
         sourceShader.setBool("celShading", false);
 
         //using the transformation matrices from earlier
-        sourceShader.setMat4("model", transMat1);
-        rose.Draw(sourceShader);
-        sourceShader.setMat4("model", transMat2);
-        rose.Draw(sourceShader);
+        //sourceShader.setMat4("model", transMat1);
+        //nebula.Draw(sourceShader);
+        //sourceShader.setMat4("model", transMat2);
+        //nebula.Draw(sourceShader);
 
 
         skyboxShader.use();
