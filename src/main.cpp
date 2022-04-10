@@ -44,16 +44,6 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-struct PointLight {
-    glm::vec3 position;
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-
-    float constant;
-    float linear;
-    float quadratic;
-};
 
 struct ProgramState {
     glm::vec3 clearColor = glm::vec3(0);
@@ -61,9 +51,8 @@ struct ProgramState {
     Camera camera;
     bool CameraMouseMovementUpdateEnabled = true;
     bool spotlight = false;
-    glm::vec3 princePosition = glm::vec3(0.0f);
+    glm::vec3 princePosition = glm::vec3(0.0f, 1.0f, 0.0f);
     float princeScale = 1.0f;
-    PointLight pointLight;
     ProgramState()
             : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
 
@@ -160,6 +149,7 @@ int main() {
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader sourceShader("resources/shaders/light_source.vs", "resources/shaders/light_source.fs");
 
+
     float skyboxVertices[] = {
             // positions
             -1.0f,  1.0f, -1.0f,
@@ -216,15 +206,9 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 
 
-    PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
-    pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
-    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
-    pointLight.constant = 1.0f;
-    pointLight.linear = 0.09f;
-    pointLight.quadratic = 0.032f;
+    // shader configuration
+    // --------------------
 
     // load models
     // -----------
@@ -234,8 +218,8 @@ int main() {
     rose.SetShaderTextureNamePrefix("material");
     Model castle("resources/objects/Castle/Castle OBJ.obj");
     castle.SetShaderTextureNamePrefix("material");
-    //Model nebula("resources/objects/nebula/Untitled/model.dae");
-    //nebula.SetShaderTextureNamePrefix("material");
+    Model lampa("resources/objects/lampa/Flashlight.obj");
+    lampa.SetShaderTextureNamePrefix("material");
 
     vector<std::string> skyboxSides = {
             FileSystem::getPath("resources/textures/space1/px.png"),
@@ -247,7 +231,6 @@ int main() {
     };
 
     unsigned int cubemapTexture = loadCubemap(skyboxSides);
-
 
     // render loop
     // -----------
@@ -295,6 +278,7 @@ int main() {
         transMat2 = glm::translate(transMat2, glm::vec3(-1.85f, 1.95f, 0.56f));
         transMat2 = glm::scale(transMat2, glm::vec3(0.08f, 0.08f, 0.08f));
         transMat2 = glm::rotate(transMat2, sin(0.6f+currentFrame*2)*glm::radians(60.0f), glm::vec3(0,0,1));
+        transMat2 = glm::rotate(transMat2, glm::radians(60.f), glm::vec3(0.0f,1.0f,0.0f));
         transMat2 = glm::translate(transMat2, glm::vec3(0.0f, -3.0f, 0.0f));
 
         glm::mat4 baseMat1 = glm::mat4(1.0f);
@@ -304,8 +288,8 @@ int main() {
         baseMat2 = glm::translate(transMat2, glm::vec3(-1.85f, 1.95f, 1.16f));
         baseMat2 = glm::scale(baseMat2, glm::vec3(0.08f, 0.08f, 0.08f));
 
-
-        glm::vec3 pos0 = transMat1 * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        glm::vec3 pos0 = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
+        //glm::vec3 pos0 = transMat1 * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         glm::vec3 pos1 = transMat2 * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
         glm::vec3 basePos0 = baseMat1 *  glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -324,9 +308,9 @@ int main() {
         // point light 1
 
         objShader.setVec3("pointLights[0].position", pos0);
-        objShader.setVec3("pointLights[0].ambient", 0.10f, 0.05f, 0.05f);
-        objShader.setVec3("pointLights[0].diffuse", 0.8, 0.6f, 0.6f);
-        objShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 0.0f);
+        objShader.setVec3("pointLights[0].ambient",0.1, 0.1, 0.1);
+        objShader.setVec3("pointLights[0].diffuse", 0.6, 0.6, 0.6);
+        objShader.setVec3("pointLights[0].specular", 1.0, 1.0, 1.0);
         objShader.setFloat("pointLights[0].constant", 1.0f);
         objShader.setFloat("pointLights[0].linear", 0.09);
         objShader.setFloat("pointLights[0].quadratic", 0.032);
@@ -384,24 +368,17 @@ int main() {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model,
                                programState->princePosition);
-        model = glm::rotate(model,sin(0.6f+currentFrame)*glm::radians(180.0f), glm::vec3(0,0.5f,0));
+        model = glm::rotate(model,glm::radians(180.0f), glm::vec3(0,-1.0f,0));
         model = glm::scale(model, glm::vec3(programState->princeScale));
         objShader.setMat4("model", model);
         princ.Draw(objShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.35f, 0.9f));
-        model = glm::scale(model, glm::vec3(0.1f));
+        model = glm::translate(model, glm::vec3(5.0f, -0.5f, 5.0f));
+        model = glm::rotate(model,glm::radians(90.0f), glm::vec3(0,-1.0f,0));
+        model = glm::scale(model, glm::vec3(0.12f));
         objShader.setMat4("model", model);
-        rose.Draw(objShader);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-0.42f, 1.11f, 0.08f));
-        model = glm::scale(model, glm::vec3(0.24f));
-        model = glm::rotate(model, glm::radians(315.0f), glm::vec3(0,1,0));
-        model = glm::rotate(model, glm::radians(350.0f), glm::vec3(1,0,0));
-        objShader.setMat4("model", model);
-        rose.Draw(objShader);
+        castle.Draw(objShader);
 
 
         //object rendering end, start of light source rendering
@@ -410,12 +387,8 @@ int main() {
         sourceShader.setMat4("projection", projection);
         sourceShader.setMat4("view", view);
         sourceShader.setBool("celShading", false);
-
-        //using the transformation matrices from earlier
-        //sourceShader.setMat4("model", transMat1);
-        //nebula.Draw(sourceShader);
-        //sourceShader.setMat4("model", transMat2);
-        //nebula.Draw(sourceShader);
+        sourceShader.setMat4("model", transMat2);
+        lampa.Draw(sourceShader);
 
 
         skyboxShader.use();
@@ -466,6 +439,7 @@ void processInput(GLFWwindow *window) {
         programState->camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(RIGHT, deltaTime);
+
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -516,9 +490,6 @@ void DrawImGui(ProgramState *programState) {
         ImGui::DragFloat3("Backpack position", (float*)&programState->princePosition);
         ImGui::DragFloat("Backpack scale", &programState->princeScale, 0.05, 0.1, 4.0);
 
-        ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
-        ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
-        ImGui::DragFloat("pointLight.quadratic", &programState->pointLight.quadratic, 0.05, 0.0, 1.0);
         ImGui::End();
     }
 
@@ -545,6 +516,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
         } else {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
+    }
+    if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+        programState->spotlight = !programState->spotlight;
     }
 }
 
